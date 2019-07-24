@@ -1,2 +1,2 @@
 # doku
-sudoku solver using different algorithms
+Your basic backtrack sudoku solver in c++
