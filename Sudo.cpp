@@ -2,8 +2,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <chrono>
 
+#include "Stopwatch.h"
 #include "Base.h"
 
 int main(int argc, char *argv[])
@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
   std::cout << "Input filename: " << inputFilename << std::endl;
 
   std::ifstream ifs;
-  //ifs.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+  // ifs.exceptions(std::ifstream::failbit | std::ifstream::badbit);
   ifs.ignore(9);
 
   try
@@ -32,12 +32,12 @@ int main(int argc, char *argv[])
   }
 
   Base sudo{ifs};
-  auto start = std::chrono::steady_clock::now();
+  Stopwatch stopwatch{};
   std::cout << "Solve by backtrack" << std::endl;
-  sudo.solveByBackTrack();
-  auto end = std::chrono::steady_clock::now();
-  auto diff = end - start;
-  std::cout << std::chrono::duration <double, std::milli> (diff).count() << " ms" << std::endl;
+  sudo.solveByBacktrack();
+  std::cout << stopwatch.millisecondsElapsed() << " ms" << std::endl;
   std::cout << sudo << std::endl;
+  int a;
+  std::cin >> a;
   return 0;
 }

@@ -17,7 +17,7 @@ public:
   bool verify();
   bool complete();
 
-  void solveByBackTrack();
+  void solveByBacktrack();
 
 private:
   Set getRow(unsigned int rowIdx);

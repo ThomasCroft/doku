@@ -1,4 +1,5 @@
 #include "Base.h"
+#include <string>
 
 Base::Base() : m_board(),
                m_clueTable()
@@ -88,7 +89,7 @@ void Base::backtrack(unsigned int &rowIdx, unsigned int &columnIdx)
   } while(m_clueTable[rowIdx][columnIdx] == true);
 }
 
-void Base::solveByBackTrack()
+void Base::solveByBacktrack()
 {
   for(unsigned int rowIdx = 0; rowIdx < m_board.size(); ++rowIdx)
   {
