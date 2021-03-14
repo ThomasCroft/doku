@@ -1,8 +1,11 @@
 #pragma once
 #include <string>
+#include <vector>
 
 class DancingLinks
 {
+  void makeBoard(const std::vector<std::vector<bool>>& grid);
+
   class ColumnHeader;
   class DancingNode
   {
@@ -14,6 +17,9 @@ class DancingLinks
 
     void reattachUpDown();
     void reattachLeftRight();
+
+    void addNodeRight(DancingNode* nodeToAdd);
+    void addNodeBelow(DancingNode* nodeToAdd);
 
   public:
     DancingNode* m_up;

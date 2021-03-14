@@ -33,6 +33,22 @@ void DancingLinks::DancingNode::reattachLeftRight()
   m_right->m_left = this;
 }
 
+void DancingLinks::DancingNode::addNodeRight(DancingLinks::DancingNode* nodeToAdd)
+{
+  nodeToAdd->m_right = m_right;
+  nodeToAdd->m_right->m_left = nodeToAdd;
+  nodeToAdd->m_left = this;
+  m_right = nodeToAdd;
+}
+
+void DancingLinks::DancingNode::addNodeBelow(DancingLinks::DancingNode* nodeToAdd)
+{
+  nodeToAdd->m_down = m_down;
+  nodeToAdd->m_down->m_up;
+  nodeToAdd->m_up = this;
+  m_down = nodeToAdd;
+}
+
 DancingLinks::ColumnHeader::ColumnHeader(const std::string& identifier) :
   DancingNode(),
   m_size(),
@@ -54,5 +70,36 @@ void DancingLinks::ColumnHeader::cover()
 
 void DancingLinks::ColumnHeader::uncover()
 {
+  for (auto* columnLink = m_up; columnLink != this; columnLink = columnLink->m_up)
+  {
+    for (auto* rowLink = columnLink->m_left; rowLink != columnLink; rowLink = rowLink->m_left)
+    {
+      rowLink->reattachUpDown();
+      ++(rowLink->m_column->m_size);
+    }
+  }
+}
 
+void DancingLinks::makeBoard(const std::vector<std::vector<bool>>& grid)
+{
+  const size_t NUM_COLUMNS = grid.size();
+  if (NUM_COLUMNS == 0)
+  {
+    return;
+  }
+  const size_t NUM_ROWS = grid[0].size();
+  if (NUM_ROWS == 0)
+  {
+    return;
+  }
+
+  ColumnHeader headerNode{"header"};
+
+  auto& previousNode = headerNode;
+  for (unsigned int columnIdx = 0; columnIdx < NUM_COLUMNS; ++columnIdx)
+  {
+    ColumnHeader columnNode{"column " + columnIdx};
+    static_cast<DancingNode>(previousNode).addNodeRight(&columnNode);
+    previousNode = columnNode;
+  }
 }
