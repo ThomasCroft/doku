@@ -1,1 +1,6 @@
-#include <SolutionInterface.h>
+#include "SolutionInterface.h"
+
+void SudokuSolution::handle(std::vector<DancingNode>)
+{
+
+}
