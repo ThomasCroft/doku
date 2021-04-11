@@ -88,8 +88,10 @@ ColumnHeader* DancingLinks::getSmallestColumn() const
   return result;
 }
 
+// TODO: Break this down into smaller functions
 void DancingLinks::solve()
 {
+  // We have reached the solution. Pass it to the solution handler to interpret it.
   if (m_headerNode.m_right == &m_headerNode)
   {
     m_solution->handle(m_result);
@@ -99,10 +101,32 @@ void DancingLinks::solve()
   auto* columnNode = getSmallestColumn();
   columnNode->cover();
 
-  for (auto* node = columnNode->m_down; node != columnNode; node = node->m_down)
+  // Add all the nodes in the column to the answer
+  for (auto* nodeInColumn = columnNode->m_down; nodeInColumn != columnNode; nodeInColumn = nodeInColumn->m_down)
   {
-    m_result.push_back(*node);
+    m_result.push_back(*nodeInColumn);
+
+    // Cover all the columns horizontally linked to this node
+    for (auto* nodeInColumnToCover = nodeInColumn->m_right; nodeInColumnToCover != nodeInColumn; nodeInColumnToCover->m_right)
+    {
+      nodeInColumnToCover->m_column->cover();
+    }
+
+    solve();
+
+    // If we are here, the solution is not correct. Uncover nodes.
+
+    // remove the node from the result
+    m_result.pop_back();
+
+    // TODO: do we need this?
+    columnNode = nodeInColumn->m_column;
+
+    for (auto *nodeInColumnToUncover = nodeInColumn->m_left; nodeInColumnToUncover != nodeInColumn; nodeInColumnToUncover->m_left)
+    {
+      nodeInColumnToUncover->m_column->uncover();
+    }
   }
 
-  solve();
+  columnNode->uncover();
 }
