@@ -4,6 +4,7 @@ DancingLinks::DancingLinks(SolutionInterface *solution) :
   m_headerNode("header"),
   m_columns(),
   m_nodes(),
+  m_result(),
   m_solution(solution)
 {
 }
@@ -72,11 +73,36 @@ void DancingLinks::validateGrid(const Grid& grid) const
   }
 }
 
-void DancingLinks::solve() const
+ColumnHeader* DancingLinks::getSmallestColumn() const
 {
-  std::vector<DancingNode> result;
+  ColumnHeader* result = nullptr;
+  unsigned int smallest = UINT_MAX;
+  for (auto& column : m_columns)
+  {
+    if ((*column).m_size < smallest)
+    {
+      smallest = (*column).m_size;
+      result = column.get();
+    }
+  }
+  return result;
+}
+
+void DancingLinks::solve()
+{
   if (m_headerNode.m_right == &m_headerNode)
   {
-    m_solution->handle(result);
+    m_solution->handle(m_result);
+    return;
   }
+
+  auto* columnNode = getSmallestColumn();
+  columnNode->cover();
+
+  for (auto* node = columnNode->m_down; node != columnNode; node = node->m_down)
+  {
+    m_result.push_back(*node);
+  }
+
+  solve();
 }
