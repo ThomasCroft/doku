@@ -1,16 +1,17 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <memory>
+
+#include <SolutionInterface.h>
 
 class DancingLinks
 {
-  void makeBoard(const std::vector<std::vector<bool>>& grid);
-
   class ColumnHeader;
   class DancingNode
   {
   public:
-    DancingNode();
+    DancingNode(ColumnHeader* header);
 
     void detachUpDown();
     void detachLeftRight();
@@ -37,10 +38,26 @@ class DancingLinks
     void cover();
     void uncover();
 
-  private:
+  public:
     size_t m_size;
+
+  private:
     std::string m_identifier;
 
   };
+
+public:
+  DancingLinks();
+  void solve() const;
+
+private:
+  using Grid = std::vector<std::vector<bool>>;
+  void makeBoard(const Grid& grid);
+  void validateGrid(const Grid& grid) const;
+
+  ColumnHeader m_headerNode;
+  std::vector<std::unique_ptr<ColumnHeader>> m_columns;
+  std::vector<std::unique_ptr<DancingNode>> m_nodes;
+  Solution_I m_solution;
 };
 

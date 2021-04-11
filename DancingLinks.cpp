@@ -1,11 +1,11 @@
 #include "DancingLinks.h"
 
-DancingLinks::DancingNode::DancingNode() :
+DancingLinks::DancingNode::DancingNode(ColumnHeader* header) :
   m_up(this),
   m_down(this),
   m_left(this),
   m_right(this),
-  m_column()
+  m_column(header)
 {
 }
 
@@ -50,7 +50,7 @@ void DancingLinks::DancingNode::addNodeBelow(DancingLinks::DancingNode* nodeToAd
 }
 
 DancingLinks::ColumnHeader::ColumnHeader(const std::string& identifier) :
-  DancingNode(),
+  DancingNode(this),
   m_size(),
   m_identifier(identifier)
 {
@@ -80,26 +80,82 @@ void DancingLinks::ColumnHeader::uncover()
   }
 }
 
-void DancingLinks::makeBoard(const std::vector<std::vector<bool>>& grid)
+DancingLinks::DancingLinks() :
+  m_headerNode("header"),
+  m_columns(),
+  m_nodes()
 {
-  const size_t NUM_COLUMNS = grid.size();
-  if (NUM_COLUMNS == 0)
-  {
-    return;
-  }
-  const size_t NUM_ROWS = grid[0].size();
-  if (NUM_ROWS == 0)
-  {
-    return;
-  }
+}
 
+void DancingLinks::makeBoard(const Grid& grid)
+{
+  validateGrid(grid);
+
+  const size_t NUM_COLUMNS = grid.size();
+  const size_t NUM_ROWS = grid[0].size();
   ColumnHeader headerNode{"header"};
 
-  auto& previousNode = headerNode;
+  auto& previousColumnNode = headerNode;
   for (unsigned int columnIdx = 0; columnIdx < NUM_COLUMNS; ++columnIdx)
   {
-    ColumnHeader columnNode{"column " + columnIdx};
-    static_cast<DancingNode>(previousNode).addNodeRight(&columnNode);
-    previousNode = columnNode;
+    // Add the column nodes
+    m_columns.emplace_back(std::make_unique<ColumnHeader>("column " + columnIdx));
+    auto& columnNode = *(m_columns.back());
+    static_cast<DancingNode>(previousColumnNode).addNodeRight(&columnNode);
+    previousColumnNode = columnNode;
+  }
+
+  for (unsigned int rowIdx = 0; rowIdx < NUM_ROWS; ++rowIdx)
+  {
+    DancingNode* previousNode_p = nullptr;
+    for (unsigned int columnIdx = 0; columnIdx < NUM_COLUMNS; ++columnIdx)
+    {
+      if (grid[rowIdx][columnIdx] == true)
+      {
+        // Add the node
+        auto *columnHeader_p = m_columns[columnIdx].get();
+        m_nodes.emplace_back(std::make_unique<DancingNode>(columnHeader_p));
+        auto *newNode_p = m_columns.back().get();
+
+        if (previousNode_p == nullptr)
+        {
+          previousNode_p = newNode_p;
+        }
+
+        columnHeader_p->m_up->addNodeBelow(newNode_p);
+        previousNode_p->addNodeRight(newNode_p);
+        previousNode_p = newNode_p;
+        ++columnHeader_p->m_size;
+      }
+    }
+  }
+}
+
+void DancingLinks::validateGrid(const Grid& grid) const
+{
+  if (grid.size() == 0 ||
+      grid[0].size() == 0)
+  {
+    throw std::exception("Invalid grid size. Grid must contain at least 1 column and 1 row.");
+  }
+
+  const auto& columnSize = grid[0].size();
+
+  for (const auto& column : grid)
+  {
+    if (column.size() != columnSize)
+    {
+      throw std::exception("Column lengths must all be equal.");
+    }
+
+  }
+}
+
+void DancingLinks::solve() const
+{
+  std::vector<DancingNode> result;
+  if (m_headerNode.m_right == &m_headerNode)
+  {
+    m_solution.handle(result);
   }
 }
