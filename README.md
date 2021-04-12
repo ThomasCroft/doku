@@ -1,2 +1,3 @@
 # doku
-Your basic backtrack sudoku solver in c++
+A backtrack and dancing links sudoku solver in c++
+Currently a WIP
